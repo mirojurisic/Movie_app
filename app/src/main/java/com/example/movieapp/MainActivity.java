@@ -7,6 +7,8 @@ import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.View;
 import android.view.Menu;
@@ -14,12 +16,22 @@ import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity {
 
+    RecyclerView recyclerView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        recyclerView = findViewById(R.id.rc_view);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this,2 );
+
+        recyclerView.setLayoutManager(gridLayoutManager);
+
+        //MovieAdapter movieAdapter = new MovieAdapter(this);
+
+
 
     }
 

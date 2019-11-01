@@ -21,9 +21,8 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-<!--    <androidx.recyclerview.widget.RecyclerView-->
-    <TextView
-        android:id="@+id/list_rc_view"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rc_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
