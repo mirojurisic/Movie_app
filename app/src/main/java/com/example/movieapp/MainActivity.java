@@ -1,5 +1,6 @@
 package com.example.movieapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -13,8 +14,26 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+import java.util.ArrayList;
+import java.util.List;
+
+public class MainActivity extends AppCompatActivity implements MovieAdapter.ListItemClickListener {
+    ArrayList<Movie> arrayList = null;
+    @Override
+    public void onListItemClick(int index) {
+       // Toast.makeText(this,""+index,Toast.LENGTH_SHORT).show();
+        Intent details =new Intent(this,MovieDetails.class);
+        details.putExtra("title",arrayList.get(index).getTitle());
+        details.putExtra("imageUrl",arrayList.get(index).getImageUrl());
+        details.putExtra("plot",arrayList.get(index).getPlot());
+        details.putExtra("rating",arrayList.get(index).getRating());
+        details.putExtra("releaseDate",arrayList.get(index).getReleaseDate());
+
+        startActivity(details);
+
+    }
 
     RecyclerView recyclerView;
     @Override
@@ -28,9 +47,9 @@ public class MainActivity extends AppCompatActivity {
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this,2 );
 
         recyclerView.setLayoutManager(gridLayoutManager);
-
-        //MovieAdapter movieAdapter = new MovieAdapter(this);
-
+        recyclerView.setHasFixedSize(true);
+        MovieAdapter movieAdapter = new MovieAdapter(getMovieList(),this); // because it implement MovieAdapter.ListItemClickListener
+        recyclerView.setAdapter(movieAdapter);
 
 
     }
@@ -57,5 +76,36 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+    // Todo networking part is missing completelly
+    // Todo fetch data from api
+    // Todo display images using library Picasso
+    // Todo parse Json and store into array
+
+    public List<Movie> getMovieList()
+    {
+        arrayList = new ArrayList<>();
+        arrayList.add(new Movie("James Bond","www.bing.cn","he kills all the bad guys",3.5,"1900" ));
+        arrayList.add(new Movie("Mission impossible","www.bing.cn","he can jump from plane to sea",3.5,"1993" ));
+        arrayList.add(new Movie("Top gun","www.bing.cn","flying very very fast",3.5,"1995" ));
+        arrayList.add(new Movie("Aircon","www.bing.cn","bad guys on plane",3.5,"2000" ));
+        arrayList.add(new Movie("Up","www.bing.cn","flying house",3.5,"2001" ));
+        arrayList.add(new Movie("Aladin","www.bing.cn","magin carpet",3.5,"2015" ));
+        arrayList.add(new Movie("Mr.Smith","www.bing.cn","parents are spies",3.5,"2019" ));
+        arrayList.add(new Movie("James Bond","www.bing.cn","he kills all the bad guys",3.5,"yesterday" ));
+        arrayList.add(new Movie("James Bond","www.bing.cn","he kills all the bad guys",3.5,"yesterday" ));
+        arrayList.add(new Movie("James Bond","www.bing.cn","he kills all the bad guys",3.5,"yesterday" ));
+        arrayList.add(new Movie("James Bond","www.bing.cn","he kills all the bad guys",3.5,"yesterday" ));
+        arrayList.add(new Movie("James Bond","www.bing.cn","he kills all the bad guys",3.5,"yesterday" ));
+        arrayList.add(new Movie("James Bond","www.bing.cn","he kills all the bad guys",3.5,"yesterday" ));
+        arrayList.add(new Movie("James Bond","www.bing.cn","he kills all the bad guys",3.5,"yesterday" ));
+        arrayList.add(new Movie("James Bond","www.bing.cn","he kills all the bad guys",3.5,"yesterday" ));
+        arrayList.add(new Movie("James Bond","www.bing.cn","he kills all the bad guys",3.5,"yesterday" ));
+        arrayList.add(new Movie("James Bond","www.bing.cn","he kills all the bad guys",3.5,"yesterday" ));
+        arrayList.add(new Movie("James Bond","www.bing.cn","he kills all the bad guys",3.5,"yesterday" ));
+        arrayList.add(new Movie("James Bond","www.bing.cn","he kills all the bad guys",3.5,"yesterday" ));
+        arrayList.add(new Movie("James Bond","www.bing.cn","he kills all the bad guys",3.5,"yesterday" ));
+        arrayList.add(new Movie("James Bond","www.bing.cn","he kills all the bad guys",3.5,"yesterday" ));
+        return arrayList;
     }
 }
