@@ -14,6 +14,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -21,6 +23,11 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements MovieAdapter.ListItemClickListener {
     ArrayList<Movie> arrayList = null;
+    MovieAdapter movieAdapter;
+    RecyclerView recyclerView;
+    TextView errorTv;
+    ProgressBar loadingView;
+
     @Override
     public void onListItemClick(int index) {
        // Toast.makeText(this,""+index,Toast.LENGTH_SHORT).show();
@@ -35,7 +42,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
 
     }
 
-    RecyclerView recyclerView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,11 +50,15 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
         setSupportActionBar(toolbar);
 
         recyclerView = findViewById(R.id.rc_view);
+        errorTv = findViewById(R.id.error_message);
+        loadingView = (ProgressBar) findViewById(R.id.loading);
+
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this,2 );
 
         recyclerView.setLayoutManager(gridLayoutManager);
         recyclerView.setHasFixedSize(true);
-        MovieAdapter movieAdapter = new MovieAdapter(getMovieList(),this); // because it implement MovieAdapter.ListItemClickListener
+        // top rated is default settings
+        movieAdapter = new MovieAdapter(getMovieList(true),this); // because it implement MovieAdapter.ListItemClickListener
         recyclerView.setAdapter(movieAdapter);
 
 
@@ -62,27 +72,36 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
     }
 
     @Override
+    //Todo make sure this makes sense once the data is being fetched correctly
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.most_popular) {
-            return true;
-        }
-        if (id == R.id.top_rated) {
-            return true;
+        int itemId = item.getItemId();
+        switch (itemId) {
+            case R.id.most_popular:
+                movieAdapter = new MovieAdapter(getMovieList(false), this); // because it implement MovieAdapter.ListItemClickListener
+                recyclerView.setAdapter(movieAdapter);
+                return true;
+            case R.id.top_rated:
+                // COMPLETED (14) Pass in this as the ListItemClickListener to the GreenAdapter constructor
+                movieAdapter = new MovieAdapter(getMovieList(true), this); // because it implement MovieAdapter.ListItemClickListener
+                recyclerView.setAdapter(movieAdapter);
+                return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+    private void showMovieView() {
+        errorTv.setVisibility(View.INVISIBLE);
+        recyclerView.setVisibility(View.VISIBLE);
+    }
+    private void showErrorView() {
+        recyclerView.setVisibility(View.INVISIBLE);
+        errorTv.setVisibility(View.VISIBLE);
     }
     // Todo networking part is missing completelly
     // Todo fetch data from api
     // Todo display images using library Picasso
     // Todo parse Json and store into array
 
-    public List<Movie> getMovieList()
+    public List<Movie> getMovieList(boolean topRated)
     {
         arrayList = new ArrayList<>();
         arrayList.add(new Movie("James Bond","www.bing.cn","he kills all the bad guys",3.5,"1900" ));
@@ -109,3 +128,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
         return arrayList;
     }
 }
+//Todo use progress bar in AsyncTask
+
+//    protected void onPreExecute() {
+//        super.onPreExecute();
+//        mLoadingIndicator.setVisibility(View.VISIBLE);
+//    }
