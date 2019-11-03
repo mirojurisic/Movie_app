@@ -8,8 +8,11 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -23,7 +26,6 @@ public MovieAdapter(List<Movie> list_of_movies,ListItemClickListener listItemCli
     this.list_of_movies = list_of_movies;
     this.listItemClickListener = listItemClickListener;
 }
-
     public interface ListItemClickListener{
     void onListItemClick(int index);
     }
@@ -36,37 +38,31 @@ public MovieAdapter(List<Movie> list_of_movies,ListItemClickListener listItemCli
         View view = layoutInflater.inflate(layoutIdForSingleItem,parent,false);
         return new MovieViewHolder(view);
     }
-
     @Override
     public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
     holder.bind(position);
     }
-
     @Override
     public int getItemCount() {
         return NUM_OF_MOVIES;
     }
 public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
     ImageView movie_poster;
-    TextView title;
+    Context context;
     MovieViewHolder(View view){
         super(view);
+        context = view.getContext();
         movie_poster = view.findViewById(R.id.movie_image);
-        title = view.findViewById(R.id.title);
         view.setOnClickListener(this); // because it extends View.OnClickListener
-
     }
     void bind(int index){
-        title.setText(list_of_movies.get(index).getTitle());
+        Picasso.get().load("https://image.tmdb.org/t/p/w185/adw6Lq9FiC9zjYEpOqfq03ituwp.jpg\n").into(movie_poster);
     }
-
     @Override
     public void onClick(View v) {
         listItemClickListener.onListItemClick(getAdapterPosition());
     }
 }
-
-
 }
 
 
