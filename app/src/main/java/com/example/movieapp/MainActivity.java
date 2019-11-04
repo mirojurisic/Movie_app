@@ -1,7 +1,11 @@
 package com.example.movieapp;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -19,15 +23,17 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements MovieAdapter.ListItemClickListener {
-    ArrayList<Movie> arrayList = null;
+    List<Movie> arrayList = null;
     MovieAdapter movieAdapter;
     RecyclerView recyclerView;
     TextView errorTv;
     ProgressBar loadingView;
+    boolean TOP_RATED = true;
 
     @Override
     public void onListItemClick(int index) {
@@ -38,9 +44,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
         details.putExtra("plot",arrayList.get(index).getPlot());
         details.putExtra("rating",arrayList.get(index).getRating());
         details.putExtra("releaseDate",arrayList.get(index).getReleaseDate());
-
         startActivity(details);
-
     }
 
     @Override
@@ -53,38 +57,57 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
         recyclerView = findViewById(R.id.rc_view);
         errorTv = findViewById(R.id.error_message);
         loadingView = (ProgressBar) findViewById(R.id.loading);
-
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this,2 );
-
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
         recyclerView.setLayoutManager(gridLayoutManager);
         recyclerView.setHasFixedSize(true);
-        // top rated is default settings
-        movieAdapter = new MovieAdapter(getMovieList(true),this); // because it implement MovieAdapter.ListItemClickListener
-        recyclerView.setAdapter(movieAdapter);
 
+        if (!isConnectedToInternet())
+            showNoInternetView();
+        else
+            new FetchMovies().execute();
+    }
+    boolean isConnectedToInternet(){
+        ConnectivityManager cm =
+                (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+    }
+    void updateUI()
+    {
+        if(arrayList!=null) {
+            movieAdapter = new MovieAdapter(arrayList, this); // because it implement MovieAdapter.ListItemClickListener
+            recyclerView.setAdapter(movieAdapter);
+        }
 
     }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
     @Override
-    //Todo make sure this makes sense once the data is being fetched correctly
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemId = item.getItemId();
         switch (itemId) {
             case R.id.most_popular:
-                movieAdapter = new MovieAdapter(getMovieList(false), this); // because it implement MovieAdapter.ListItemClickListener
-                recyclerView.setAdapter(movieAdapter);
+                TOP_RATED = false;
+                if (!isConnectedToInternet())
+                    showNoInternetView();
+                else {
+                    showMovieView();
+                    new FetchMovies().execute();
+                }
                 return true;
             case R.id.top_rated:
-                // COMPLETED (14) Pass in this as the ListItemClickListener to the GreenAdapter constructor
-                movieAdapter = new MovieAdapter(getMovieList(true), this); // because it implement MovieAdapter.ListItemClickListener
-                recyclerView.setAdapter(movieAdapter);
+                TOP_RATED = true;
+                if (!isConnectedToInternet())
+                    showNoInternetView();
+                else {
+                    showMovieView();
+                    new FetchMovies().execute();
+                }
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -96,42 +119,40 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
     private void showErrorView() {
         recyclerView.setVisibility(View.INVISIBLE);
         errorTv.setVisibility(View.VISIBLE);
+        errorTv.setText("ERROR");
     }
-    // Todo networking part is missing completelly
-    // Todo fetch data from api
-    // Todo display images using library Picasso
-    // Todo parse Json and store into array
+    private void showNoInternetView() {
+        recyclerView.setVisibility(View.INVISIBLE);
+        errorTv.setVisibility(View.VISIBLE);
+        loadingView.setVisibility(View.GONE);
+        errorTv.setText("No internet connection");
+    }
 
-    public List<Movie> getMovieList(boolean topRated)
-    {
-        arrayList = new ArrayList<>();
-        arrayList.add(new Movie("James Bond","www.bing.cn","he kills all the bad guys",3.5,"1900" ));
-        arrayList.add(new Movie("Mission impossible","www.bing.cn","he can jump from plane to sea",3.5,"1993" ));
-        arrayList.add(new Movie("Top gun","www.bing.cn","flying very very fast",3.5,"1995" ));
-        arrayList.add(new Movie("Aircon","www.bing.cn","bad guys on plane",3.5,"2000" ));
-        arrayList.add(new Movie("Up","www.bing.cn","flying house",3.5,"2001" ));
-        arrayList.add(new Movie("Aladin","www.bing.cn","magin carpet",3.5,"2015" ));
-        arrayList.add(new Movie("Mr.Smith","www.bing.cn","parents are spies",3.5,"2019" ));
-        arrayList.add(new Movie("James Bond","www.bing.cn","he kills all the bad guys",3.5,"yesterday" ));
-        arrayList.add(new Movie("James Bond","www.bing.cn","he kills all the bad guys",3.5,"yesterday" ));
-        arrayList.add(new Movie("James Bond","www.bing.cn","he kills all the bad guys",3.5,"yesterday" ));
-        arrayList.add(new Movie("James Bond","www.bing.cn","he kills all the bad guys",3.5,"yesterday" ));
-        arrayList.add(new Movie("James Bond","www.bing.cn","he kills all the bad guys",3.5,"yesterday" ));
-        arrayList.add(new Movie("James Bond","www.bing.cn","he kills all the bad guys",3.5,"yesterday" ));
-        arrayList.add(new Movie("James Bond","www.bing.cn","he kills all the bad guys",3.5,"yesterday" ));
-        arrayList.add(new Movie("James Bond","www.bing.cn","he kills all the bad guys",3.5,"yesterday" ));
-        arrayList.add(new Movie("James Bond","www.bing.cn","he kills all the bad guys",3.5,"yesterday" ));
-        arrayList.add(new Movie("James Bond","www.bing.cn","he kills all the bad guys",3.5,"yesterday" ));
-        arrayList.add(new Movie("James Bond","www.bing.cn","he kills all the bad guys",3.5,"yesterday" ));
-        arrayList.add(new Movie("James Bond","www.bing.cn","he kills all the bad guys",3.5,"yesterday" ));
-        arrayList.add(new Movie("James Bond","www.bing.cn","he kills all the bad guys",3.5,"yesterday" ));
-        arrayList.add(new Movie("James Bond","www.bing.cn","he kills all the bad guys",3.5,"yesterday" ));
-        return arrayList;
+    public class FetchMovies extends AsyncTask<String, Void, List<Movie>> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            loadingView.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected List<Movie> doInBackground(String... params) {
+
+             return  NetworkUtils.getMovies(TOP_RATED);
+        }
+
+        @Override
+        protected void onPostExecute(List<Movie> movie_list) {
+            loadingView.setVisibility(View.GONE);
+            arrayList = movie_list;
+            if(arrayList==null || arrayList.isEmpty())
+                showErrorView();
+            else
+                showMovieView();
+            updateUI();
+        }
     }
+
 }
 //Todo use progress bar in AsyncTask
 
-//    protected void onPreExecute() {
-//        super.onPreExecute();
-//        mLoadingIndicator.setVisibility(View.VISIBLE);
-//    }

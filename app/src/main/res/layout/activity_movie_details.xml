@@ -1,46 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MovieDetails">
 
-    <TextView
-        android:id="@+id/d_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="TextView"
-        android:textSize="24sp" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
 
-    <TextView
-        android:id="@+id/d_poster"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/d_title"
-        android:text="TextView"
-        android:textSize="24sp" />
+            <TextView
+                android:id="@+id/title_header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/original_title"
+                android:textSize="18sp" />
 
-    <TextView
-        android:id="@+id/d_plot"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/d_poster"
-        android:text="TextView"
-        android:textSize="24sp" />
+            <TextView
+                android:id="@+id/d_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/title_header"
+                android:textSize="18sp" />
 
-    <TextView
-        android:id="@+id/d_rating"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/d_plot"
-        android:text="TextView"
-        android:textSize="24sp" />
+            <ImageView
+                android:id="@+id/d_poster"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/d_title"
+                android:layout_margin="4dp"
+                tools:srcCompat="@tools:sample/avatars" />
 
-    <TextView
-        android:id="@+id/d_release"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/d_rating"
-        android:text="TextView" />
-</RelativeLayout>
+            <TextView
+                android:id="@+id/ratings_header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/d_title"
+                android:layout_toRightOf="@id/d_poster"
+                android:text="@string/ratings"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/d_rating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/d_title"
+                android:layout_toRightOf="@id/ratings_header"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/release_header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/ratings_header"
+                android:layout_toRightOf="@id/d_poster"
+                android:text="@string/released"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/d_release"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/d_rating"
+                android:layout_toRightOf="@id/release_header"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/plot_header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/d_poster"
+                android:text="@string/plot"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/d_plot"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/plot_header"
+                android:textSize="18sp" />
+        </RelativeLayout>
+
+</ScrollView>

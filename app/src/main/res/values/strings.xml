@@ -2,4 +2,8 @@
     <string name="app_name">Movie app</string>
     <string name="popular">The most popular</string>
     <string name="rated">The top rated</string>
+    <string name="original_title">Original title:</string>
+    <string name="ratings">Ratings:</string>
+    <string name="released">Released:</string>
+    <string name="plot">Plot:</string>
 </resources>
