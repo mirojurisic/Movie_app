@@ -1,7 +1,9 @@
 package com.example.movieapp;
 
+import android.app.LoaderManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.Loader;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -16,6 +18,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,13 +30,13 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements MovieAdapter.ListItemClickListener {
+public class MainActivity extends AppCompatActivity implements MovieAdapter.ListItemClickListener, LoaderManager.LoaderCallbacks<List<Movie>>  {
     List<Movie> arrayList = null;
     MovieAdapter movieAdapter;
     RecyclerView recyclerView;
     TextView errorTv;
     ProgressBar loadingView;
-    boolean TOP_RATED = true;
+    static boolean TOP_RATED = true;
 
     @Override
     public void onListItemClick(int index) {
@@ -60,11 +63,13 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
         recyclerView.setLayoutManager(gridLayoutManager);
         recyclerView.setHasFixedSize(true);
+        //LoaderManager loaderManager = getSupportLoaderManager();
 
         if (!isConnectedToInternet())
             showNoInternetView();
-        else
-            new FetchMovies().execute();
+        else {
+            getLoaderManager().initLoader(0, null, this).forceLoad();
+        }
     }
     boolean isConnectedToInternet(){
         ConnectivityManager cm =
@@ -97,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
                     showNoInternetView();
                 else {
                     showMovieView();
-                    new FetchMovies().execute();
+                    getLoaderManager().initLoader(0, null, this).forceLoad();
                 }
                 return true;
             case R.id.top_rated:
@@ -106,7 +111,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
                     showNoInternetView();
                 else {
                     showMovieView();
-                    new FetchMovies().execute();
+                    Log.v("TAG", "missing loader");
+                    getLoaderManager().initLoader(0, null, this).forceLoad();
                 }
                 return true;
         }
@@ -128,31 +134,30 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
         errorTv.setText("No internet connection");
     }
 
-    public class FetchMovies extends AsyncTask<String, Void, List<Movie>> {
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            loadingView.setVisibility(View.VISIBLE);
-        }
 
-        @Override
-        protected List<Movie> doInBackground(String... params) {
-
-             return  NetworkUtils.getMovies(TOP_RATED);
-        }
-
-        @Override
-        protected void onPostExecute(List<Movie> movie_list) {
-            loadingView.setVisibility(View.GONE);
-            arrayList = movie_list;
-            if(arrayList==null || arrayList.isEmpty())
-                showErrorView();
-            else
-                showMovieView();
-            updateUI();
-        }
+    @Override
+    public Loader<List<Movie>> onCreateLoader(int id, Bundle args) {
+        loadingView.setVisibility(View.VISIBLE);
+        return new MovieLoader(this);
     }
 
+    @Override
+    public void onLoadFinished(Loader<List<Movie>> loader, List<Movie> data) {
+        Log.v("TAG","Loader finished");
+        loadingView.setVisibility(View.GONE);
+        Log.v("TAG","size of data "+data.size());
+        arrayList = data;
+        if(arrayList==null || arrayList.isEmpty())
+            showErrorView();
+        else
+            showMovieView();
+        updateUI();
+    }
+
+    @Override
+    public void onLoaderReset(Loader<List<Movie>> loader) {
+
+    }
 }
 //Todo use progress bar in AsyncTask
 
