@@ -115,6 +115,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
                     getLoaderManager().initLoader(0, null, this).forceLoad();
                 }
                 return true;
+            case R.id.settings:
+                Intent details =new Intent(this,Settings.class);
+                startActivity(details);
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -159,5 +163,4 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
 
     }
 }
-//Todo use progress bar in AsyncTask
 

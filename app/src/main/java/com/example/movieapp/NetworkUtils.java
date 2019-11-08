@@ -104,5 +104,7 @@ public class NetworkUtils {
         }
         return movieArrayList;
     }
+    // Todo Implement shared preferences
+    // Todo implement current shared prefeences in preference_settings
 }
 

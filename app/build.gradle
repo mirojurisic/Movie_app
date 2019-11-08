@@ -32,4 +32,10 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
     implementation 'com.squareup.picasso:picasso:2.71828'
+    implementation 'androidx.preference:preference:1.1.0'
+    def fragment_version = "1.1.0"
+    // Java
+    implementation "androidx.fragment:fragment:$fragment_version"
+    // Testing Fragments in Isolation
+    implementation "androidx.fragment:fragment-testing:$fragment_version"
 }
