@@ -4,6 +4,7 @@ import android.app.LoaderManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -15,6 +16,8 @@ import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -30,7 +33,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements MovieAdapter.ListItemClickListener, LoaderManager.LoaderCallbacks<List<Movie>>  {
+public class MainActivity extends AppCompatActivity implements MovieAdapter.ListItemClickListener, LoaderManager.LoaderCallbacks<List<Movie>>,
+    SharedPreferences.OnSharedPreferenceChangeListener {
     List<Movie> arrayList = null;
     MovieAdapter movieAdapter;
     RecyclerView recyclerView;
@@ -40,13 +44,13 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
 
     @Override
     public void onListItemClick(int index) {
-       // Toast.makeText(this,""+index,Toast.LENGTH_SHORT).show();
-        Intent details =new Intent(this,MovieDetails.class);
-        details.putExtra("title",arrayList.get(index).getTitle());
-        details.putExtra("imageUrl",arrayList.get(index).getImageUrl());
-        details.putExtra("plot",arrayList.get(index).getPlot());
-        details.putExtra("rating",arrayList.get(index).getRating());
-        details.putExtra("releaseDate",arrayList.get(index).getReleaseDate());
+        // Toast.makeText(this,""+index,Toast.LENGTH_SHORT).show();
+        Intent details = new Intent(this, MovieDetails.class);
+        details.putExtra("title", arrayList.get(index).getTitle());
+        details.putExtra("imageUrl", arrayList.get(index).getImageUrl());
+        details.putExtra("plot", arrayList.get(index).getPlot());
+        details.putExtra("rating", arrayList.get(index).getRating());
+        details.putExtra("releaseDate", arrayList.get(index).getReleaseDate());
         startActivity(details);
     }
 
@@ -64,28 +68,30 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
         recyclerView.setLayoutManager(gridLayoutManager);
         recyclerView.setHasFixedSize(true);
         //LoaderManager loaderManager = getSupportLoaderManager();
-
+        readSharedPreferences();
         if (!isConnectedToInternet())
             showNoInternetView();
         else {
             getLoaderManager().initLoader(0, null, this).forceLoad();
         }
     }
-    boolean isConnectedToInternet(){
+
+    boolean isConnectedToInternet() {
         ConnectivityManager cm =
                 (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         return activeNetwork != null &&
                 activeNetwork.isConnectedOrConnecting();
     }
-    void updateUI()
-    {
-        if(arrayList!=null) {
+
+    void updateUI() {
+        if (arrayList != null) {
             movieAdapter = new MovieAdapter(arrayList, this); // because it implement MovieAdapter.ListItemClickListener
             recyclerView.setAdapter(movieAdapter);
         }
 
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -102,6 +108,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
                     showNoInternetView();
                 else {
                     showMovieView();
+                    Log.v("TAG", "missing loader menu "+ TOP_RATED);
                     getLoaderManager().initLoader(0, null, this).forceLoad();
                 }
                 return true;
@@ -111,26 +118,29 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
                     showNoInternetView();
                 else {
                     showMovieView();
-                    Log.v("TAG", "missing loader");
+                    Log.v("TAG", "missing loader menu "+ TOP_RATED);
                     getLoaderManager().initLoader(0, null, this).forceLoad();
                 }
                 return true;
             case R.id.settings:
-                Intent details =new Intent(this,Settings.class);
+                Intent details = new Intent(this, Settings.class);
                 startActivity(details);
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
+
     private void showMovieView() {
         errorTv.setVisibility(View.INVISIBLE);
         recyclerView.setVisibility(View.VISIBLE);
     }
+
     private void showErrorView() {
         recyclerView.setVisibility(View.INVISIBLE);
         errorTv.setVisibility(View.VISIBLE);
         errorTv.setText("ERROR");
     }
+
     private void showNoInternetView() {
         recyclerView.setVisibility(View.INVISIBLE);
         errorTv.setVisibility(View.VISIBLE);
@@ -147,11 +157,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
 
     @Override
     public void onLoadFinished(Loader<List<Movie>> loader, List<Movie> data) {
-        Log.v("TAG","Loader finished");
+        Log.v("TAG", "Loader finished");
         loadingView.setVisibility(View.GONE);
-        Log.v("TAG","size of data "+data.size());
+        Log.v("TAG", "size of data " + data.size());
         arrayList = data;
-        if(arrayList==null || arrayList.isEmpty())
+        if (arrayList == null || arrayList.isEmpty())
             showErrorView();
         else
             showMovieView();
@@ -162,5 +172,46 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
     public void onLoaderReset(Loader<List<Movie>> loader) {
 
     }
-}
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+    public void readSharedPreferences() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        TOP_RATED = sharedPreferences.getBoolean("top_rated_movies", true);
+       // SharedPreferences.Editor editor = sharedPreferences.edit();
+       // editor.putBoolean("top_rated_movies", true);
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if(!key.equals("top_rated_movies"))
+            return;
+        TOP_RATED = sharedPreferences.getBoolean("top_rated_movies", true);
+
+        if (TOP_RATED) {
+            if (!isConnectedToInternet())
+                showNoInternetView();
+            else {
+                showMovieView();
+                Log.v("TAG", "missing loader"+TOP_RATED);
+                getLoaderManager().initLoader(0, null, this).forceLoad();
+            }
+        }
+            else{
+                if (!isConnectedToInternet())
+                    showNoInternetView();
+                else {
+                    showMovieView();
+                    Log.v("TAG", "missing loader"+TOP_RATED);
+                    getLoaderManager().initLoader(0, null, this).forceLoad();
+                }
+            }
+        }
+    }
+
 
